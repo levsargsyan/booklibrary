@@ -21,7 +21,7 @@ public class BookDataLoader implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
         try {
-            if (bookRepository.findFirst().isEmpty()) {
+            if (bookRepository.count() == 0) {
                 bookRepository.saveAll(bookFetchService.fetchBooks());
                 log.info("Data loaded from external service");
             } else {
