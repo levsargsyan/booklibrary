@@ -3,6 +3,7 @@ package com.example.booklibrary.controller;
 import com.example.booklibrary.dto.BookRequestDto;
 import com.example.booklibrary.dto.BookResponseDto;
 import com.example.booklibrary.service.BookService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,19 +33,18 @@ public class BookController {
     }
 
     @PostMapping
-    public ResponseEntity<BookResponseDto> createBook(@RequestBody BookRequestDto bookRequestDto) {
+    public ResponseEntity<BookResponseDto> createBook(@Valid @RequestBody BookRequestDto bookRequestDto) {
         BookResponseDto savedBookRequestDto = bookService.saveBook(bookRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedBookRequestDto);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<BookResponseDto> updateBook(@PathVariable Long id, @RequestBody BookRequestDto updatedBookRequestDto) {
-        BookResponseDto existingBookDto = bookService.getBook(id);
-        if (existingBookDto == null) {
+    public ResponseEntity<BookResponseDto> updateBook(@PathVariable Long id,  @Valid @RequestBody BookRequestDto updatedBookRequestDto) {
+        BookResponseDto bookResponseDto = bookService.updateBook(id, updatedBookRequestDto);
+        if (bookResponseDto == null) {
             return ResponseEntity.notFound().build();
         }
-        updatedBookRequestDto.setId(id);
-        return ResponseEntity.ok(bookService.saveBook(updatedBookRequestDto));
+        return ResponseEntity.ok(bookResponseDto);
     }
 
     @DeleteMapping("/{id}")

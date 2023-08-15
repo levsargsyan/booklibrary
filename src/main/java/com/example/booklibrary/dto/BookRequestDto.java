@@ -1,9 +1,9 @@
 package com.example.booklibrary.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
@@ -13,8 +13,11 @@ import java.time.LocalDate;
 @Data
 public class BookRequestDto implements Serializable {
 
-    @JsonIgnore
+    @Null
     private Long id;
+
+    @Null
+    private int version;
 
     @NotBlank
     private String title;
@@ -31,7 +34,7 @@ public class BookRequestDto implements Serializable {
     @NotBlank
     private String isbn;
 
-    @Pattern(regexp = "^(http|https)://[^\\s]+$")
+    @Pattern(regexp = "^(http|https)://[^\\s]+$", message = "url must be valid")
     private String image;
 
     @JsonFormat(pattern = "yyyy-MM-dd")

@@ -11,6 +11,8 @@ public class BookResponseDto implements Serializable {
 
     private Long id;
 
+    private int version;
+
     private String title;
 
     private String author;

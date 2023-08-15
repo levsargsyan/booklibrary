@@ -17,6 +17,8 @@ public interface BookService {
 
     BookResponseDto saveBook(BookRequestDto bookRequestDto);
 
+    BookResponseDto updateBook(Long id, BookRequestDto bookRequestDto);
+
     void deleteBook(Long id);
 
     Page<BookResponseDto> getBooksPaginated(Pageable pageable);

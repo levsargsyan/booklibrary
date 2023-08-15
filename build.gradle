@@ -35,13 +35,15 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-hateoas"
     implementation "org.springframework.boot:spring-boot-starter-cache"
     implementation "org.springframework.boot:spring-boot-starter-data-redis"
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation "org.springframework.boot:spring-boot-starter-actuator"
+    implementation "org.springframework.boot:spring-boot-starter-validation"
     implementation "com.github.ben-manes.caffeine:caffeine:${caffeineCache}"
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}"
     implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonVersion}"
     implementation "org.mapstruct:mapstruct:${mapStructVersion}"
 
     compileOnly "org.projectlombok:lombok"
+    runtimeOnly "mysql:mysql-connector-java:8.0.33"
     runtimeOnly "com.h2database:h2"
 
     annotationProcessor "org.projectlombok:lombok"

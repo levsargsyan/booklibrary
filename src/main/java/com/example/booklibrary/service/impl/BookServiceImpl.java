@@ -18,10 +18,12 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @AllArgsConstructor
@@ -30,12 +32,14 @@ public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
     private final BookMapper bookMapper;
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "allBooks")
     @Override
     public List<BookResponseDto> getAllBooks() {
         return bookMapper.booksToBookResponseDtos(bookRepository.findAll());
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "book", key = "#id")
     @Override
     public BookResponseDto getBook(Long id) {
@@ -43,6 +47,7 @@ public class BookServiceImpl implements BookService {
         return bookMapper.bookToBookResponseDto(book);
     }
 
+    @Transactional
     @CachePut(value = "book", key = "#result.id")
     @Caching(evict = {
             @CacheEvict(value = "allBooks", allEntries = true),
@@ -54,6 +59,25 @@ public class BookServiceImpl implements BookService {
         return bookMapper.bookToBookResponseDto(book);
     }
 
+    @Transactional
+    @CachePut(value = "book", key = "#result.id")
+    @Caching(evict = {
+            @CacheEvict(value = "allBooks", allEntries = true),
+            @CacheEvict(value = "pagedBooks", allEntries = true)
+    })
+    @Override
+    public BookResponseDto updateBook(Long id, BookRequestDto updatedBookRequestDto) {
+        BookResponseDto existingBookDto = getBook(id);
+        if(Objects.nonNull(existingBookDto)){
+            updatedBookRequestDto.setId(existingBookDto.getId());
+            updatedBookRequestDto.setVersion(existingBookDto.getVersion());
+            return saveBook(updatedBookRequestDto);
+        }
+
+        return null;
+    }
+
+    @Transactional
     @Caching(evict = {
             @CacheEvict(value = "book", key = "#id"),
             @CacheEvict(value = "allBooks", allEntries = true),
@@ -64,6 +88,7 @@ public class BookServiceImpl implements BookService {
         bookRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "pagedBooks", key = "#pageable.pageNumber + '-' + #pageable.pageSize + '-' + #pageable.sort")
     @Override
     public Page<BookResponseDto> getBooksPaginated(Pageable pageable) {
