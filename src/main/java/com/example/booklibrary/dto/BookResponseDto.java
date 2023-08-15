@@ -3,10 +3,12 @@ package com.example.booklibrary.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
 @Data
-public class BookResponseDto {
+public class BookResponseDto implements Serializable {
+
     private Long id;
 
     private String title;

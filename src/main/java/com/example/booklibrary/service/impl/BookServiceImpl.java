@@ -7,6 +7,10 @@ import com.example.booklibrary.model.Book;
 import com.example.booklibrary.repository.BookRepository;
 import com.example.booklibrary.service.BookService;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,32 +30,51 @@ public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
     private final BookMapper bookMapper;
 
+    @Cacheable(value = "allBooks")
     @Override
     public List<BookResponseDto> getAllBooks() {
         return bookMapper.booksToBookResponseDtos(bookRepository.findAll());
     }
 
+    @Cacheable(value = "book", key = "#id")
     @Override
     public BookResponseDto getBook(Long id) {
-        Book book = bookRepository.findById(id).orElse(null); // or throw an exception if not found
+        Book book = bookRepository.findById(id).orElse(null);
         return bookMapper.bookToBookResponseDto(book);
     }
 
+    @CachePut(value = "book", key = "#result.id")
+    @Caching(evict = {
+            @CacheEvict(value = "allBooks", allEntries = true),
+            @CacheEvict(value = "pagedBooks", allEntries = true)
+    })
     @Override
     public BookResponseDto saveBook(BookRequestDto bookRequestDto) {
         Book book = bookRepository.save(bookMapper.bookRequestDtoToBook(bookRequestDto));
         return bookMapper.bookToBookResponseDto(book);
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = "book", key = "#id"),
+            @CacheEvict(value = "allBooks", allEntries = true),
+            @CacheEvict(value = "pagedBooks", allEntries = true)
+    })
     @Override
     public void deleteBook(Long id) {
         bookRepository.deleteById(id);
     }
 
+    @Cacheable(value = "pagedBooks", key = "#pageable.pageNumber + '-' + #pageable.pageSize + '-' + #pageable.sort")
     @Override
-    public PagedModel<EntityModel<BookResponseDto>> assemblePagedModel(Pageable pageable, String path) {
-        Page<BookResponseDto> booksPaginatedDto = getBooksPaginated(pageable);
+    public Page<BookResponseDto> getBooksPaginated(Pageable pageable) {
+        return bookRepository.findAll(pageable).map(bookMapper::bookToBookResponseDto);
+    }
 
+    @Override
+    public PagedModel<EntityModel<BookResponseDto>> assemblePagedModel(
+            Pageable pageable,
+            Page<BookResponseDto> booksPaginatedDto,
+            String path) {
         List<EntityModel<BookResponseDto>> bookDtoResources = booksPaginatedDto.getContent()
                 .stream()
                 .map(EntityModel::of)
@@ -68,10 +91,6 @@ public class BookServiceImpl implements BookService {
         addPaginationLinks(pagedModel, booksPaginatedDto, pageable, path);
 
         return pagedModel;
-    }
-
-    private Page<BookResponseDto> getBooksPaginated(Pageable pageable) {
-        return bookRepository.findAll(pageable).map(bookMapper::bookToBookResponseDto);
     }
 
     private void addPaginationLinks(PagedModel<EntityModel<BookResponseDto>> pagedModel,

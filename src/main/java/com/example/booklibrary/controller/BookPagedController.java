@@ -3,6 +3,7 @@ package com.example.booklibrary.controller;
 import com.example.booklibrary.dto.BookResponseDto;
 import com.example.booklibrary.service.BookService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
@@ -19,7 +20,8 @@ public class BookPagedController {
 
     @GetMapping
     public PagedModel<EntityModel<BookResponseDto>> getAllBooks(Pageable pageable) {
-        return bookService.assemblePagedModel(pageable, "/api/v1/books/paged");
+        Page<BookResponseDto> booksPaginatedDto = bookService.getBooksPaginated(pageable);
+        return bookService.assemblePagedModel(pageable, booksPaginatedDto, "/api/v1/books/paged");
     }
 }
 

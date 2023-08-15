@@ -7,10 +7,11 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
 @Data
-public class BookRequestDto {
+public class BookRequestDto implements Serializable {
 
     @JsonIgnore
     private Long id;

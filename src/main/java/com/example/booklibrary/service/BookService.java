@@ -2,6 +2,7 @@ package com.example.booklibrary.service;
 
 import com.example.booklibrary.dto.BookRequestDto;
 import com.example.booklibrary.dto.BookResponseDto;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
@@ -18,5 +19,10 @@ public interface BookService {
 
     void deleteBook(Long id);
 
-    PagedModel<EntityModel<BookResponseDto>> assemblePagedModel(Pageable pageable, String path);
+    Page<BookResponseDto> getBooksPaginated(Pageable pageable);
+
+    PagedModel<EntityModel<BookResponseDto>> assemblePagedModel(
+            Pageable pageable,
+            Page<BookResponseDto> booksPaginatedDto,
+            String path);
 }

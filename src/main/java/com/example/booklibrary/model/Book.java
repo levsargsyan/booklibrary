@@ -50,7 +50,7 @@ public class Book {
 
     @NotBlank
     @Size(min = 13, max = 13)
-    @Column(name = "isbn", nullable = false, length = 13, unique = true)
+    @Column(name = "isbn", nullable = false, length = 13)
     private String isbn;
 
     @NotBlank
