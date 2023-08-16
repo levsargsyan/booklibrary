@@ -39,7 +39,7 @@ public class BookController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<BookResponseDto> updateBook(@PathVariable Long id,  @Valid @RequestBody BookRequestDto updatedBookRequestDto) {
+    public ResponseEntity<BookResponseDto> updateBook(@PathVariable Long id, @Valid @RequestBody BookRequestDto updatedBookRequestDto) {
         BookResponseDto bookResponseDto = bookService.updateBook(id, updatedBookRequestDto);
         if (bookResponseDto == null) {
             return ResponseEntity.notFound().build();

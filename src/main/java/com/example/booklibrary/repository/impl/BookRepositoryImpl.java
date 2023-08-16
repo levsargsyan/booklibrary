@@ -1,8 +1,9 @@
 package com.example.booklibrary.repository.impl;
 
+import com.example.booklibrary.constant.SearchOperation;
 import com.example.booklibrary.model.Book;
 import com.example.booklibrary.repository.BookRepositoryCustom;
-import com.example.booklibrary.search.BookSearchCommand;
+import com.example.booklibrary.dto.BookSearchCommand;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
@@ -52,13 +53,25 @@ public class BookRepositoryImpl implements BookRepositoryCustom {
     private List<Predicate> createPredicates(BookSearchCommand searchCommand, CriteriaBuilder cb, Root<Book> root) {
         List<Predicate> predicates = new ArrayList<>();
 
-        addIfNotNullOrEmpty(predicates, cb, root.get("title"), searchCommand.getTitle());
-        addIfNotNullOrEmpty(predicates, cb, root.get("author"), searchCommand.getAuthor());
-        addIfNotNullOrEmpty(predicates, cb, root.get("genre"), searchCommand.getGenre());
-        addIfNotNullOrEmpty(predicates, cb, root.get("description"), searchCommand.getDescription());
-        addIfNotNullOrEmpty(predicates, cb, root.get("isbn"), searchCommand.getIsbn());
-        addIfNotNullOrEmpty(predicates, cb, root.get("image"), searchCommand.getImage());
-        addIfNotNullOrEmpty(predicates, cb, root.get("publisher"), searchCommand.getPublisher());
+        // text-based field predicates
+        List<Predicate> textPredicates = new ArrayList<>();
+
+        addTextPredicateIfNotNullOrEmpty(textPredicates, cb, root.get("title"), searchCommand.getTitle());
+        addTextPredicateIfNotNullOrEmpty(textPredicates, cb, root.get("author"), searchCommand.getAuthor());
+        addTextPredicateIfNotNullOrEmpty(textPredicates, cb, root.get("genre"), searchCommand.getGenre());
+        addTextPredicateIfNotNullOrEmpty(textPredicates, cb, root.get("description"), searchCommand.getDescription());
+        addTextPredicateIfNotNullOrEmpty(textPredicates, cb, root.get("isbn"), searchCommand.getIsbn());
+        addTextPredicateIfNotNullOrEmpty(textPredicates, cb, root.get("image"), searchCommand.getImage());
+        addTextPredicateIfNotNullOrEmpty(textPredicates, cb, root.get("publisher"), searchCommand.getPublisher());
+
+        // text-based predicates using 'AND' or 'OR' based on user's choice
+        if (!textPredicates.isEmpty()) {
+            if (searchCommand.getOperation() == SearchOperation.OR) {
+                predicates.add(cb.or(textPredicates.toArray(new Predicate[0])));
+            } else {
+                predicates.addAll(textPredicates);
+            }
+        }
 
         String fieldPublished = "published";
         if (searchCommand.getPublished() != null) {
@@ -78,7 +91,7 @@ public class BookRepositoryImpl implements BookRepositoryCustom {
         return predicates;
     }
 
-    private void addIfNotNullOrEmpty(List<Predicate> predicates, CriteriaBuilder cb, Path<String> path, String value) {
+    private void addTextPredicateIfNotNullOrEmpty(List<Predicate> predicates, CriteriaBuilder cb, Path<String> path, String value) {
         if (value != null && !value.trim().isEmpty()) {
             predicates.add(cb.like(cb.lower(path), "%" + value.toLowerCase() + "%"));
         }

@@ -1,5 +1,6 @@
-package com.example.booklibrary.search;
+package com.example.booklibrary.dto;
 
+import com.example.booklibrary.constant.SearchOperation;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -16,4 +17,5 @@ public class BookSearchCommand {
     private LocalDate published;
     private LocalDate publishedFrom;
     private LocalDate publishedTo;
+    private SearchOperation operation = SearchOperation.AND;  // Default to AND
 }

@@ -1,7 +1,7 @@
 package com.example.booklibrary.controller;
 
 import com.example.booklibrary.dto.BookResponseDto;
-import com.example.booklibrary.search.BookSearchCommand;
+import com.example.booklibrary.dto.BookSearchCommand;
 import com.example.booklibrary.service.BookService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
