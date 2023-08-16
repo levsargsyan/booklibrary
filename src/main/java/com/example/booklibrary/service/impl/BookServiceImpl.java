@@ -5,6 +5,7 @@ import com.example.booklibrary.dto.BookResponseDto;
 import com.example.booklibrary.mapper.BookMapper;
 import com.example.booklibrary.model.Book;
 import com.example.booklibrary.repository.BookRepository;
+import com.example.booklibrary.search.BookSearchCommand;
 import com.example.booklibrary.service.BookService;
 import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -51,7 +52,8 @@ public class BookServiceImpl implements BookService {
     @CachePut(value = "book", key = "#result.id")
     @Caching(evict = {
             @CacheEvict(value = "allBooks", allEntries = true),
-            @CacheEvict(value = "pagedBooks", allEntries = true)
+            @CacheEvict(value = "pagedBooks", allEntries = true),
+            @CacheEvict(value = "searchedBooks", allEntries = true)
     })
     @Override
     public BookResponseDto saveBook(BookRequestDto bookRequestDto) {
@@ -63,7 +65,8 @@ public class BookServiceImpl implements BookService {
     @CachePut(value = "book", key = "#result.id")
     @Caching(evict = {
             @CacheEvict(value = "allBooks", allEntries = true),
-            @CacheEvict(value = "pagedBooks", allEntries = true)
+            @CacheEvict(value = "pagedBooks", allEntries = true),
+            @CacheEvict(value = "searchedBooks", allEntries = true)
     })
     @Override
     public BookResponseDto updateBook(Long id, BookRequestDto updatedBookRequestDto) {
@@ -81,11 +84,19 @@ public class BookServiceImpl implements BookService {
     @Caching(evict = {
             @CacheEvict(value = "book", key = "#id"),
             @CacheEvict(value = "allBooks", allEntries = true),
-            @CacheEvict(value = "pagedBooks", allEntries = true)
+            @CacheEvict(value = "pagedBooks", allEntries = true),
+            @CacheEvict(value = "searchedBooks", allEntries = true)
     })
     @Override
     public void deleteBook(Long id) {
         bookRepository.deleteById(id);
+    }
+
+    @Transactional(readOnly = true)
+    @Cacheable(value = "searchedBooks", key = "#searchCommand.toString() + '-' + #pageable.pageNumber + '-' + #pageable.pageSize + '-' + #pageable.sort")
+    @Override
+    public Page<BookResponseDto> searchBooks(BookSearchCommand searchCommand, Pageable pageable) {
+        return bookRepository.searchBooks(searchCommand, pageable).map(bookMapper::bookToBookResponseDto);
     }
 
     @Transactional(readOnly = true)

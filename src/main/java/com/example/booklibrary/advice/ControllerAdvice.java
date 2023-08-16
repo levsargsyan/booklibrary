@@ -2,6 +2,7 @@ package com.example.booklibrary.advice;
 
 import com.example.booklibrary.controller.BookController;
 import com.example.booklibrary.controller.BookPagedController;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -13,12 +14,17 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.*;
 
+@Slf4j
 @RestControllerAdvice(assignableTypes = {BookController.class, BookPagedController.class})
 public class ControllerAdvice {
+
+    public static final String EXCEPTION_MSG = "Exception is thrown";
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public Map<String, Object> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        log.error(EXCEPTION_MSG, ex);
+
         List<String> errors = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
@@ -33,7 +39,9 @@ public class ControllerAdvice {
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(NoSuchElementException.class)
-    public Map<String, Object> handleNotFoundException() {
+    public Map<String, Object> handleNotFoundException(NoSuchElementException ex) {
+        log.error(EXCEPTION_MSG, ex);
+
         return buildErrorResponse(
                 HttpStatus.NOT_FOUND,
                 "Not Found",
@@ -42,7 +50,9 @@ public class ControllerAdvice {
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
-    public Map<String, Object> handleGeneralExceptions() {
+    public Map<String, Object> handleGeneralExceptions(Exception ex) {
+        log.error(EXCEPTION_MSG, ex);
+
         return buildErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "Internal Error",
@@ -51,7 +61,9 @@ public class ControllerAdvice {
 
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public Map<String, Object> handleDataIntegrityViolation() {
+    public Map<String, Object> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        log.error(EXCEPTION_MSG, ex);
+
         return buildErrorResponse(
                 HttpStatus.CONFLICT,
                 "Conflict",
@@ -61,6 +73,8 @@ public class ControllerAdvice {
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
     public Map<String, Object> handleMethodNotSupportedException(HttpRequestMethodNotSupportedException ex) {
+        log.error(EXCEPTION_MSG, ex);
+
         return buildErrorResponse(
                 HttpStatus.METHOD_NOT_ALLOWED,
                 "Method Not Allowed",
@@ -70,11 +84,25 @@ public class ControllerAdvice {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, Object> handleMessageNotReadableException(HttpMessageNotReadableException ex) {
+        log.error(EXCEPTION_MSG, ex);
+
         return buildErrorResponse(
                 HttpStatus.BAD_REQUEST,
                 "Malformed JSON request. Please check the request body.",
                 List.of(ex.getMessage()));
     }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(IllegalArgumentException.class)
+    public Map<String, Object> handleIllegalArgumentException(IllegalArgumentException ex) {
+        log.error(EXCEPTION_MSG, ex);
+
+        return buildErrorResponse(
+                HttpStatus.BAD_REQUEST,
+                "Invalid Argument",
+                ex.getMessage());
+    }
+
 
     private Map<String, Object> buildErrorResponse(HttpStatus status, String error, Object message) {
         Map<String, Object> response = new LinkedHashMap<>();
