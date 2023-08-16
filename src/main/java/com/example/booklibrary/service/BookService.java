@@ -2,7 +2,7 @@ package com.example.booklibrary.service;
 
 import com.example.booklibrary.dto.BookRequestDto;
 import com.example.booklibrary.dto.BookResponseDto;
-import com.example.booklibrary.dto.BookSearchCommand;
+import com.example.booklibrary.dto.search.BookSearchCommand;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.EntityModel;

@@ -4,6 +4,7 @@ import com.example.booklibrary.controller.BookController;
 import com.example.booklibrary.controller.BookPagedController;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -100,6 +101,17 @@ public class ControllerAdvice {
         return buildErrorResponse(
                 HttpStatus.BAD_REQUEST,
                 "Invalid Argument",
+                ex.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(InvalidDataAccessApiUsageException.class)
+    public Map<String, Object> handleInvalidDataAccessApiUsageException(InvalidDataAccessApiUsageException ex) {
+        log.error(EXCEPTION_MSG, ex);
+
+        return buildErrorResponse(
+                HttpStatus.BAD_REQUEST,
+                "Invalid data access usage",
                 ex.getMessage());
     }
 

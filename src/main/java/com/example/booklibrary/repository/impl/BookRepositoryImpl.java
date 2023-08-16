@@ -1,9 +1,11 @@
 package com.example.booklibrary.repository.impl;
 
+import com.example.booklibrary.constant.SearchFieldOperation;
 import com.example.booklibrary.constant.SearchOperation;
+import com.example.booklibrary.dto.search.TextSearchCriteria;
 import com.example.booklibrary.model.Book;
 import com.example.booklibrary.repository.BookRepositoryCustom;
-import com.example.booklibrary.dto.BookSearchCommand;
+import com.example.booklibrary.dto.search.BookSearchCommand;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
@@ -91,9 +93,13 @@ public class BookRepositoryImpl implements BookRepositoryCustom {
         return predicates;
     }
 
-    private void addTextPredicateIfNotNullOrEmpty(List<Predicate> predicates, CriteriaBuilder cb, Path<String> path, String value) {
-        if (value != null && !value.trim().isEmpty()) {
-            predicates.add(cb.like(cb.lower(path), "%" + value.toLowerCase() + "%"));
+    private void addTextPredicateIfNotNullOrEmpty(List<Predicate> predicates, CriteriaBuilder cb, Path<String> path, TextSearchCriteria criteria) {
+        if (criteria != null && criteria.getValue() != null && !criteria.getValue().trim().isEmpty()) {
+            if (criteria.getOperation() == SearchFieldOperation.EQUAL) {
+                predicates.add(cb.equal(cb.lower(path), criteria.getValue().toLowerCase()));
+            } else if (criteria.getOperation() == SearchFieldOperation.CONTAINS) {
+                predicates.add(cb.like(cb.lower(path), "%" + criteria.getValue().toLowerCase() + "%"));
+            }
         }
     }
 }

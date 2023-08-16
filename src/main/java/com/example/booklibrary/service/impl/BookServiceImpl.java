@@ -5,7 +5,7 @@ import com.example.booklibrary.dto.BookResponseDto;
 import com.example.booklibrary.mapper.BookMapper;
 import com.example.booklibrary.model.Book;
 import com.example.booklibrary.repository.BookRepository;
-import com.example.booklibrary.dto.BookSearchCommand;
+import com.example.booklibrary.dto.search.BookSearchCommand;
 import com.example.booklibrary.service.BookService;
 import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
