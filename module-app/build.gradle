@@ -1,0 +1,13 @@
+bootJar {
+    enabled = true
+    mainClass = 'com.example.booklibrary.BookLibraryApplication'
+
+    archiveBaseName.set(rootProject.getName())
+    archiveVersion.set(rootProject.getVersion().toString())
+    archiveFileName.set("${archiveBaseName.get()}-${archiveVersion.get()}.jar")
+}
+
+dependencies {
+    implementation project(':module-book')
+    implementation project(':module-user-security')
+}
