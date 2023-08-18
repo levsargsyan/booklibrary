@@ -1,8 +1,5 @@
 package com.example.booklibrary.advice;
 
-import com.example.booklibrary.book.controller.BookController;
-import com.example.booklibrary.book.controller.BookPagedController;
-import com.example.booklibrary.security.controller.UserController;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
@@ -18,11 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.*;
 
 @Slf4j
-@RestControllerAdvice(assignableTypes = {
-        BookController.class,
-        BookPagedController.class,
-        UserController.class
-})
+@RestControllerAdvice(basePackages = {"com.example.booklibrary"})
 public class ControllerAdvice {
 
     public static final String EXCEPTION_MSG = "Exception is thrown";

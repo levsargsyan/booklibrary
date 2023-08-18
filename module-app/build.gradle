@@ -8,6 +8,6 @@ bootJar {
 }
 
 dependencies {
-    implementation project(':module-book')
-    implementation project(':module-user-security')
+    runtimeOnly project(':module-book')
+    runtimeOnly project(':module-user-security')
 }
