@@ -17,7 +17,7 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
         String acceptHeader = request.getHeader("Accept");
         if (acceptHeader != null && acceptHeader.contains("text/html")) {
-            response.sendRedirect("/login");
+            response.sendRedirect("/login.html");
         } else {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
         }

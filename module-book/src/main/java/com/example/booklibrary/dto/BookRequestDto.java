@@ -18,7 +18,7 @@ public class BookRequestDto implements Serializable {
     private Long id;
 
     @Null
-    private int version;
+    private Integer version;
 
     @NotBlank
     @Size(max = 255)
@@ -34,7 +34,6 @@ public class BookRequestDto implements Serializable {
 
     @NotBlank
     @Size(max = 1000)
-    @Size(min = 13, max = 13)
     private String description;
 
     @NotBlank

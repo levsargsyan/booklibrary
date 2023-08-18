@@ -26,7 +26,7 @@ public class Book {
 
     @Version
     @Column(name = "version", nullable = false)
-    private int version;
+    private Integer version;
 
     @NotBlank
     @Size(max = 255)

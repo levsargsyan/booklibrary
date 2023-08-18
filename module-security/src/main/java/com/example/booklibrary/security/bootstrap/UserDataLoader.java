@@ -18,6 +18,8 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.util.List;
 
+import static com.example.booklibrary.security.constant.Role.*;
+
 @Component
 @ConditionalOnProperty(name = "user.data.loader.enabled", havingValue = "true")
 @Slf4j
@@ -66,39 +68,28 @@ public class UserDataLoader implements ApplicationRunner {
     private void initSimpleUsers(List<User> users) {
         users.forEach(user -> {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
-            user.setRole(Role.USER);
+            user.setRole(USER);
         });
     }
 
     private void initAdminUsers(List<User> users) {
-        String dummySysAdmData = "dummySysAdm";
-        String dummyAdmData = "dummyAdm";
+        users.add(createUser("dummySysAdm", systemAdminEmail, systemAdminPassword, SUPER_ADMIN));
+        users.add(createUser("dummyAdm", adminEmail, adminPassword, ADMIN));
+    }
 
-        User systemAdmin = new User();
-        systemAdmin.setEmail(systemAdminEmail);
-        systemAdmin.setPassword(passwordEncoder.encode(systemAdminPassword));
-        systemAdmin.setRole(Role.SUPER_ADMIN);
-        systemAdmin.setPan(dummySysAdmData);
-        systemAdmin.setName(dummySysAdmData);
-        systemAdmin.setPhone(dummySysAdmData);
-        systemAdmin.setCountry(dummySysAdmData);
-        systemAdmin.setAddress(dummySysAdmData);
-        systemAdmin.setPostalZip(dummySysAdmData);
-        systemAdmin.setExpDate(LocalDate.now());
+    private User createUser(String dummyData, String mail, String password, Role role) {
+        User user = new User();
+        user.setEmail(mail);
+        user.setPassword(passwordEncoder.encode(password));
+        user.setRole(role);
+        user.setPan(dummyData);
+        user.setName(dummyData);
+        user.setPhone(dummyData);
+        user.setCountry(dummyData);
+        user.setAddress(dummyData);
+        user.setPostalZip(dummyData);
+        user.setExpDate(LocalDate.now());
 
-        User admin = new User();
-        admin.setEmail(adminEmail);
-        admin.setPassword(passwordEncoder.encode(adminPassword));
-        admin.setRole(Role.ADMIN);
-        admin.setPan(dummyAdmData);
-        admin.setName(dummyAdmData);
-        admin.setPhone(dummyAdmData);
-        admin.setCountry(dummyAdmData);
-        admin.setAddress(dummyAdmData);
-        admin.setPostalZip(dummyAdmData);
-        admin.setExpDate(LocalDate.now());
-
-        users.add(systemAdmin);
-        users.add(admin);
+        return user;
     }
 }

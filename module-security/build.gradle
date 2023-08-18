@@ -2,4 +2,7 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-security"
     implementation "com.opencsv:opencsv:${opencsvVersion}"
     implementation "org.jasypt:jasypt:${jasyptVersion}"
+    implementation "io.jsonwebtoken:jjwt-api:${jjwtVersion}"
+    implementation "io.jsonwebtoken:jjwt-impl:${jjwtVersion}"
+    implementation "io.jsonwebtoken:jjwt-jackson:${jjwtVersion}"
 }

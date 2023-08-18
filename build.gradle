@@ -14,6 +14,7 @@ ext {
     caffeineCacheVersion = '3.1.8'
     opencsvVersion = '5.8'
     jasyptVersion = '1.9.3'
+    jjwtVersion = '0.11.5'
 }
 
 subprojects {

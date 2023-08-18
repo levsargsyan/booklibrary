@@ -21,7 +21,7 @@ import java.time.LocalDate;
 @EqualsAndHashCode(of = "id")
 @Entity
 @EntityListeners(UserEntityListener.class)
-@Table(name = "user")
+@Table(name = "users")
 public class User implements Serializable {
 
     @Serial
@@ -33,7 +33,7 @@ public class User implements Serializable {
 
     @Version
     @Column(name = "version", nullable = false)
-    private int version;
+    private Integer version;
 
     @NotBlank
     @Size(max = 255)
