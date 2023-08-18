@@ -1,3 +1,4 @@
 rootProject.name = 'booklibrary'
 
-include 'book-module'
+include 'module-book'
+include 'module-security'

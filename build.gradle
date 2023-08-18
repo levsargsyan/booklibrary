@@ -11,7 +11,9 @@ ext {
     mapStructVersion = '1.5.5.Final'
     jacksonVersion = '2.15.2'
     springdocVersion = '2.2.0'
-    caffeineCache = '3.1.8'
+    caffeineCacheVersion = '3.1.8'
+    opencsvVersion = '5.8'
+    jasyptVersion = '1.9.3'
 }
 
 subprojects {
@@ -21,6 +23,15 @@ subprojects {
 
     java {
         sourceCompatibility = '20'
+    }
+
+    if (plugins.hasPlugin('org.springframework.boot')) {
+        bootJar {
+            enabled = false
+        }
+        jar {
+            enabled = true
+        }
     }
 
     repositories {
