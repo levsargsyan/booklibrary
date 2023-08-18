@@ -18,8 +18,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -57,6 +59,7 @@ public class BookServiceImpl implements BookService {
     })
     @Override
     public BookResponseDto saveBook(BookRequestDto bookRequestDto) {
+        checkData(bookRequestDto);
         Book book = bookRepository.save(bookMapper.bookRequestDtoToBook(bookRequestDto));
         return bookMapper.bookToBookResponseDto(book);
     }
@@ -70,8 +73,9 @@ public class BookServiceImpl implements BookService {
     })
     @Override
     public BookResponseDto updateBook(Long id, BookRequestDto updatedBookRequestDto) {
+        checkData(updatedBookRequestDto);
         BookResponseDto existingBookDto = getBook(id);
-        if(Objects.nonNull(existingBookDto)){
+        if (Objects.nonNull(existingBookDto)) {
             updatedBookRequestDto.setId(existingBookDto.getId());
             updatedBookRequestDto.setVersion(existingBookDto.getVersion());
             return saveBook(updatedBookRequestDto);
@@ -91,6 +95,7 @@ public class BookServiceImpl implements BookService {
     public void deleteBook(Long id) {
         bookRepository.deleteById(id);
     }
+
 
     @Transactional(readOnly = true)
     @Cacheable(value = "searchedBooks", key = "#searchCommand.toString() + '-' + #pageable.pageNumber + '-' + #pageable.pageSize + '-' + #pageable.sort")
@@ -127,6 +132,12 @@ public class BookServiceImpl implements BookService {
         addPaginationLinks(pagedModel, booksPaginatedDto, pageable, path);
 
         return pagedModel;
+    }
+
+    private void checkData(BookRequestDto bookRequestDto) {
+        if (bookRepository.existsByIsbn(bookRequestDto.getIsbn())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Isbn already in use.");
+        }
     }
 
     private void addPaginationLinks(PagedModel<EntityModel<BookResponseDto>> pagedModel,

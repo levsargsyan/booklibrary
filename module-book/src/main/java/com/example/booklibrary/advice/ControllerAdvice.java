@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.nio.file.AccessDeniedException;
 import java.util.*;
 
 @Slf4j
@@ -73,10 +71,12 @@ public class ControllerAdvice {
     public Map<String, Object> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
         log.error(EXCEPTION_MSG, ex);
 
+        String message = ex.getMostSpecificCause().getMessage();
+
         return buildErrorResponse(
                 HttpStatus.CONFLICT,
-                "Conflict",
-                "Request could not be completed due to a data conflict.");
+                "Request could not be completed due to a data conflict.",
+                message);
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
@@ -129,8 +129,8 @@ public class ControllerAdvice {
 
         return buildErrorResponse(
                 HttpStatus.valueOf(ex.getStatusCode().value()),
-                ex.getReason(),
-                ex.getMessage());
+                "Error",
+                ex.getReason());
     }
 
 

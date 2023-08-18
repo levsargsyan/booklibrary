@@ -72,7 +72,7 @@ public class User implements Serializable {
 
     @NotBlank
     @Size(max = 255)
-    @Column(name = "pan", unique = true, nullable = false, length = 255)
+    @Column(name = "pan", nullable = false, length = 255)
     String pan;
 
     @NotNull

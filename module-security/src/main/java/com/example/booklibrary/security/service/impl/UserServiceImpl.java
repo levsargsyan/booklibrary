@@ -45,6 +45,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public UserResponseDto saveUser(UserRequestDto userRequestDto) {
+        checkData(userRequestDto);
         User user = userRepository.save(userMapper.userRequestDtoToUser(userRequestDto));
         return userMapper.userToUserResponseDto(user);
     }
@@ -52,6 +53,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public UserResponseDto updateUser(Long id, UserRequestDto updatedUserRequestDto) {
+        checkData(updatedUserRequestDto);
         UserResponseDto existingUserDto = getUser(id);
         if (Objects.nonNull(existingUserDto)) {
             updatedUserRequestDto.setId(existingUserDto.getId());
@@ -68,7 +70,7 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(id);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public Role getRoleOfUser(Long id) {
         return getUser(id).getRole();
@@ -82,6 +84,12 @@ public class UserServiceImpl implements UserService {
             throw new ResponseStatusException(
                     HttpStatus.FORBIDDEN,
                     "You are not authorized to operate on users of higher role");
+        }
+    }
+
+    private void checkData(UserRequestDto userRequestDto){
+        if(userRepository.existsByEmail(userRequestDto.getEmail())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already in use.");
         }
     }
 }
