@@ -30,11 +30,11 @@ public class UserDataLoader implements ApplicationRunner {
     private final UserFetchService userFetchService;
     private final PasswordEncoder passwordEncoder;
 
-    @Value("${user.data.loader.sysadmin.email}")
-    private String systemAdminEmail;
+    @Value("${user.data.loader.superadmin.email}")
+    private String superAdminEmail;
 
-    @Value("${user.data.loader.sysadmin.password}")
-    private String systemAdminPassword;
+    @Value("${user.data.loader.superadmin.password}")
+    private String superAdminPassword;
 
     @Value("${user.data.loader.admin.email}")
     private String adminEmail;
@@ -66,21 +66,18 @@ public class UserDataLoader implements ApplicationRunner {
     }
 
     private void initSimpleUsers(List<User> users) {
-        users.forEach(user -> {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-            user.setRole(USER);
-        });
+        users.forEach(user -> user.setRole(USER));
     }
 
     private void initAdminUsers(List<User> users) {
-        users.add(createUser("dummySysAdm", systemAdminEmail, systemAdminPassword, SUPER_ADMIN));
+        users.add(createUser("dummySupAdm", superAdminEmail, superAdminPassword, SUPER_ADMIN));
         users.add(createUser("dummyAdm", adminEmail, adminPassword, ADMIN));
     }
 
     private User createUser(String dummyData, String mail, String password, Role role) {
         User user = new User();
         user.setEmail(mail);
-        user.setPassword(passwordEncoder.encode(password));
+        user.setPassword(password);
         user.setRole(role);
         user.setPan(dummyData);
         user.setName(dummyData);

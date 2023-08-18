@@ -11,10 +11,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -46,10 +43,10 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/logout")
+    @GetMapping("/logout")
     public ResponseEntity<String> logout(HttpServletResponse response) {
         Cookie jwtCookie = new Cookie("JWT-TOKEN", null);
-        jwtCookie.setMaxAge(0); // expire the cookie
+        jwtCookie.setMaxAge(0);
         jwtCookie.setHttpOnly(true);
         jwtCookie.setPath("/");
 

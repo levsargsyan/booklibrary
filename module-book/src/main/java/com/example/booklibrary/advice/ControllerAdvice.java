@@ -2,21 +2,29 @@ package com.example.booklibrary.advice;
 
 import com.example.booklibrary.controller.BookController;
 import com.example.booklibrary.controller.BookPagedController;
+import com.example.booklibrary.security.controller.UserController;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.nio.file.AccessDeniedException;
 import java.util.*;
 
 @Slf4j
-@RestControllerAdvice(assignableTypes = {BookController.class, BookPagedController.class})
+@RestControllerAdvice(assignableTypes = {
+        BookController.class,
+        BookPagedController.class,
+        UserController.class
+})
 public class ControllerAdvice {
 
     public static final String EXCEPTION_MSG = "Exception is thrown";
@@ -112,6 +120,16 @@ public class ControllerAdvice {
         return buildErrorResponse(
                 HttpStatus.BAD_REQUEST,
                 "Invalid data access usage",
+                ex.getMessage());
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public Map<String, Object> handleResponseStatusException(ResponseStatusException ex) {
+        log.warn(EXCEPTION_MSG, ex);
+
+        return buildErrorResponse(
+                HttpStatus.valueOf(ex.getStatusCode().value()),
+                ex.getReason(),
                 ex.getMessage());
     }
 

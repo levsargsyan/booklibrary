@@ -6,6 +6,7 @@ import jakarta.persistence.PostLoad;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import org.jasypt.encryption.StringEncryptor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 public class UserEntityListener {
 
@@ -13,8 +14,10 @@ public class UserEntityListener {
     @PreUpdate
     public void prePersist(User user) {
         StringEncryptor encryptor = BeanUtil.getBean(StringEncryptor.class);
+        PasswordEncoder passwordEncoder = BeanUtil.getBean(PasswordEncoder.class);
 
         user.setPan(encryptor.encrypt(user.getPan()));
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
     }
 
     @PostLoad
