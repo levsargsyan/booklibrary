@@ -37,7 +37,5 @@ public interface BookService {
             Page<BookResponseDto> booksPaginatedDto,
             String path);
 
-    void checkData(
-            BookWithInventoryRequestDto bookWithInventoryRequestDto,
-            BookWithInventoryResponseDto existingBookWithInventoryResponseDto);
+    void checkData(BookWithInventoryRequestDto requestDto, BookWithInventoryResponseDto existingDto);
 }

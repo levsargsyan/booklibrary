@@ -146,9 +146,9 @@ public class BookServiceImpl implements BookService {
         return pagedModel;
     }
 
-    public void checkData(
-            BookWithInventoryRequestDto requestDto,
-            BookWithInventoryResponseDto existingDto) {
+    @Transactional
+    @Override
+    public void checkData(BookWithInventoryRequestDto requestDto, BookWithInventoryResponseDto existingDto) {
 
         if (existingDto == null) {
             if (bookRepository.existsByIsbn(requestDto.getIsbn())) {

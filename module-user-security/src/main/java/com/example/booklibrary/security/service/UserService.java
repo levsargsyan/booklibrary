@@ -17,6 +17,10 @@ public interface UserService {
 
     void deleteUser(Long id);
 
+    void checkData(
+            UserRequestDto userRequestDto,
+            UserResponseDto existingUserResponseDto);
+
     Role getRoleOfUser(Long id);
 
     void checkAuthorization(Role roleOfUserToActUpon, Role roleOfRequestDto);

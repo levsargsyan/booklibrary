@@ -33,6 +33,7 @@ public class UserController {
     @PostMapping
     public ResponseEntity<UserResponseDto> createUser(@Valid @RequestBody UserRequestDto userRequestDto) {
         userService.checkAuthorization(null, userRequestDto.getRole());
+        userService.checkData(userRequestDto, null);
         UserResponseDto savedUserRequestDto = userService.saveUser(userRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedUserRequestDto);
     }

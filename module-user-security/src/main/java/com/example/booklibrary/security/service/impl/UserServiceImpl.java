@@ -45,7 +45,6 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public UserResponseDto saveUser(UserRequestDto userRequestDto) {
-        checkData(userRequestDto);
         User user = userRepository.save(userMapper.userRequestDtoToUser(userRequestDto));
         return userMapper.userToUserResponseDto(user);
     }
@@ -53,8 +52,8 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public UserResponseDto updateUser(Long id, UserRequestDto updatedUserRequestDto) {
-        checkData(updatedUserRequestDto);
         UserResponseDto existingUserDto = getUser(id);
+        checkData(updatedUserRequestDto, existingUserDto);
         if (Objects.nonNull(existingUserDto)) {
             updatedUserRequestDto.setId(existingUserDto.getId());
             updatedUserRequestDto.setVersion(existingUserDto.getVersion());
@@ -87,9 +86,20 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private void checkData(UserRequestDto userRequestDto){
-        if(userRepository.existsByEmail(userRequestDto.getEmail())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already in use.");
+    @Transactional
+    @Override
+    public void checkData(UserRequestDto requestDto, UserResponseDto existingDto) {
+        if (existingDto == null) {
+            if (userRepository.existsByEmail(requestDto.getEmail())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already in use.");
+            }
+        } else {
+            boolean isIsbnDifferentFromExisting = !requestDto.getEmail()
+                    .equals(existingDto.getEmail());
+
+            if (isIsbnDifferentFromExisting && userRepository.existsByEmail(requestDto.getEmail())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already in use.");
+            }
         }
     }
 }
