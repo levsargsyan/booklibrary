@@ -3,10 +3,12 @@ package com.example.booklibrary.book.service.impl;
 import com.example.booklibrary.book.dto.BookResponseDto;
 import com.example.booklibrary.book.dto.BookWithInventoryRequestDto;
 import com.example.booklibrary.book.dto.BookWithInventoryResponseDto;
+import com.example.booklibrary.book.dto.InventoryProjectedResponseDto;
 import com.example.booklibrary.book.dto.search.BookSearchCommand;
 import com.example.booklibrary.book.mapper.BookMapper;
 import com.example.booklibrary.book.model.Book;
 import com.example.booklibrary.book.repository.BookRepository;
+import com.example.booklibrary.book.repository.InventoryRepository;
 import com.example.booklibrary.book.service.BookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -34,6 +36,7 @@ import java.util.Objects;
 public class BookServiceImpl implements BookService {
 
     private final BookRepository bookRepository;
+    private final InventoryRepository inventoryRepository;
     private final BookMapper bookMapper;
 
     @Transactional(readOnly = true)
@@ -65,7 +68,6 @@ public class BookServiceImpl implements BookService {
     })
     @Override
     public BookWithInventoryResponseDto saveBook(BookWithInventoryRequestDto bookWithInventoryRequestDto) {
-        checkData(bookWithInventoryRequestDto, null);
         Book book = bookRepository.save(bookMapper.bookWithInventoryRequestDtoToBook(bookWithInventoryRequestDto));
         return bookMapper.bookToBookWithInventoryResponseDto(book);
     }
@@ -117,6 +119,10 @@ public class BookServiceImpl implements BookService {
         return bookRepository.findAll(pageable).map(bookMapper::bookToBookResponseDto);
     }
 
+    public List<InventoryProjectedResponseDto> getAllInventories() {
+        return inventoryRepository.findAllProjectedBy();
+    }
+
     @Override
     public PagedModel<EntityModel<BookResponseDto>> assemblePagedModel(
             Pageable pageable,
@@ -140,21 +146,21 @@ public class BookServiceImpl implements BookService {
         return pagedModel;
     }
 
-    private void checkData(
-            BookWithInventoryRequestDto bookWithInventoryRequestDto,
-            BookWithInventoryResponseDto existingBookWithInventoryResponseDto) {
+    public void checkData(
+            BookWithInventoryRequestDto requestDto,
+            BookWithInventoryResponseDto existingDto) {
 
-        boolean isIsbnUsedInExisting = existingBookWithInventoryResponseDto != null
-                && bookWithInventoryRequestDto.getIsbn().equals(existingBookWithInventoryResponseDto.getIsbn());
+        if (existingDto == null) {
+            if (bookRepository.existsByIsbn(requestDto.getIsbn())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Isbn already in use.");
+            }
+        } else {
+            boolean isIsbnDifferentFromExisting = !requestDto.getIsbn()
+                    .equals(existingDto.getIsbn());
 
-
-
-
-
-
-
-        if (isIsbnUsedInExisting || bookRepository.existsByIsbn(bookWithInventoryRequestDto.getIsbn())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Isbn already in use.");
+            if (isIsbnDifferentFromExisting && bookRepository.existsByIsbn(requestDto.getIsbn())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Isbn already in use.");
+            }
         }
     }
 

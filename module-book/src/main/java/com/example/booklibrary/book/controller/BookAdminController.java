@@ -2,6 +2,7 @@ package com.example.booklibrary.book.controller;
 
 import com.example.booklibrary.book.dto.BookWithInventoryRequestDto;
 import com.example.booklibrary.book.dto.BookWithInventoryResponseDto;
+import com.example.booklibrary.book.dto.InventoryProjectedResponseDto;
 import com.example.booklibrary.book.service.BookService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ public class BookAdminController {
 
     @PostMapping
     public ResponseEntity<BookWithInventoryResponseDto> createBook(@Valid @RequestBody BookWithInventoryRequestDto bookRequestDto) {
+        bookService.checkData(bookRequestDto, null);
         BookWithInventoryResponseDto savedBookDto = bookService.saveBook(bookRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedBookDto);
     }
@@ -51,6 +53,11 @@ public class BookAdminController {
     public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
         bookService.deleteBook(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/inventories")
+    public ResponseEntity<List<InventoryProjectedResponseDto>> getAllInventories() {
+        return ResponseEntity.ok(bookService.getAllInventories());
     }
 }
 
