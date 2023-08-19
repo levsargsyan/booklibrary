@@ -30,7 +30,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 import static com.example.booklibrary.security.constant.Role.*;
-import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
 @Configuration
@@ -61,11 +60,10 @@ public class SecurityConfig {
                                         antMatcher("/actuator/**")
                                 ).permitAll()
                                 .requestMatchers(
-                                        antMatcher(GET, "/api/v1/books/**"),
-                                        antMatcher("/api/v1/books/paged/**")
+                                        antMatcher("/api/v1/books/**")
                                 ).hasAnyRole(SUPER_ADMIN.name(), ADMIN.name(), USER.name())
                                 .requestMatchers(
-                                        antMatcher("/api/v1/books/**")
+                                        antMatcher("/admin/api/v1/books/**")
                                 ).hasAnyRole(SUPER_ADMIN.name(), ADMIN.name())
                                 .requestMatchers(
                                         antMatcher("/api/v1/users/**")

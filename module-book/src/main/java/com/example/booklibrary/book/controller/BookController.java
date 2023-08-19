@@ -1,15 +1,15 @@
 package com.example.booklibrary.book.controller;
 
-import com.example.booklibrary.book.dto.BookRequestDto;
 import com.example.booklibrary.book.dto.BookResponseDto;
+import com.example.booklibrary.book.dto.search.BookSearchCommand;
 import com.example.booklibrary.book.service.BookService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/books")
@@ -17,11 +17,6 @@ import java.util.List;
 public class BookController {
 
     private final BookService bookService;
-
-    @GetMapping
-    public ResponseEntity<List<BookResponseDto>> getAllBooks() {
-        return ResponseEntity.ok(bookService.getAllBooks());
-    }
 
     @GetMapping("/{id}")
     public ResponseEntity<BookResponseDto> getBookById(@PathVariable Long id) {
@@ -32,25 +27,16 @@ public class BookController {
         return ResponseEntity.ok(bookResponseDto);
     }
 
-    @PostMapping
-    public ResponseEntity<BookResponseDto> createBook(@Valid @RequestBody BookRequestDto bookRequestDto) {
-        BookResponseDto savedBookRequestDto = bookService.saveBook(bookRequestDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedBookRequestDto);
+    @GetMapping
+    public PagedModel<EntityModel<BookResponseDto>> getAllBooks(Pageable pageable) {
+        Page<BookResponseDto> booksPaginatedDto = bookService.getBooksPaginated(pageable);
+        return bookService.assemblePagedModel(pageable, booksPaginatedDto, "/api/v1/books/paged");
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<BookResponseDto> updateBook(@PathVariable Long id, @Valid @RequestBody BookRequestDto updatedBookRequestDto) {
-        BookResponseDto bookResponseDto = bookService.updateBook(id, updatedBookRequestDto);
-        if (bookResponseDto == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(bookResponseDto);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
-        bookService.deleteBook(id);
-        return ResponseEntity.noContent().build();
+    @PostMapping("/search")
+    public PagedModel<EntityModel<BookResponseDto>> searchBooks(@RequestBody BookSearchCommand searchCommand, Pageable pageable) {
+        Page<BookResponseDto> booksPaginatedDto = bookService.searchBooks(searchCommand, pageable);
+        return bookService.assemblePagedModel(pageable, booksPaginatedDto, "/api/v1/books/paged/search");
     }
 }
 

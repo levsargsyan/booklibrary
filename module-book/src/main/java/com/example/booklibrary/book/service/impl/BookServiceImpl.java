@@ -1,7 +1,8 @@
 package com.example.booklibrary.book.service.impl;
 
-import com.example.booklibrary.book.dto.BookRequestDto;
 import com.example.booklibrary.book.dto.BookResponseDto;
+import com.example.booklibrary.book.dto.BookWithInventoryRequestDto;
+import com.example.booklibrary.book.dto.BookWithInventoryResponseDto;
 import com.example.booklibrary.book.dto.search.BookSearchCommand;
 import com.example.booklibrary.book.mapper.BookMapper;
 import com.example.booklibrary.book.model.Book;
@@ -36,13 +37,6 @@ public class BookServiceImpl implements BookService {
     private final BookMapper bookMapper;
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "allBooks")
-    @Override
-    public List<BookResponseDto> getAllBooks() {
-        return bookMapper.booksToBookResponseDtos(bookRepository.findAll());
-    }
-
-    @Transactional(readOnly = true)
     @Cacheable(value = "book", key = "#id")
     @Override
     public BookResponseDto getBook(Long id) {
@@ -50,35 +44,48 @@ public class BookServiceImpl implements BookService {
         return bookMapper.bookToBookResponseDto(book);
     }
 
-    @Transactional
-    @CachePut(value = "book", key = "#result.id")
-    @Caching(evict = {
-            @CacheEvict(value = "allBooks", allEntries = true),
-            @CacheEvict(value = "pagedBooks", allEntries = true),
-            @CacheEvict(value = "searchedBooks", allEntries = true)
-    })
+    @Transactional(readOnly = true)
     @Override
-    public BookResponseDto saveBook(BookRequestDto bookRequestDto) {
-        checkData(bookRequestDto);
-        Book book = bookRepository.save(bookMapper.bookRequestDtoToBook(bookRequestDto));
-        return bookMapper.bookToBookResponseDto(book);
+    public BookWithInventoryResponseDto getBookWithInventory(Long id) {
+        Book book = bookRepository.findById(id).orElse(null);
+        return bookMapper.bookToBookWithInventoryResponseDto(book);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<BookWithInventoryResponseDto> getAllBooks() {
+        return bookMapper.booksToBookWithInventoryResponseDtos(bookRepository.findAll());
     }
 
     @Transactional
     @CachePut(value = "book", key = "#result.id")
     @Caching(evict = {
-            @CacheEvict(value = "allBooks", allEntries = true),
             @CacheEvict(value = "pagedBooks", allEntries = true),
             @CacheEvict(value = "searchedBooks", allEntries = true)
     })
     @Override
-    public BookResponseDto updateBook(Long id, BookRequestDto updatedBookRequestDto) {
-        checkData(updatedBookRequestDto);
-        BookResponseDto existingBookDto = getBook(id);
+    public BookWithInventoryResponseDto saveBook(BookWithInventoryRequestDto bookWithInventoryRequestDto) {
+        checkData(bookWithInventoryRequestDto, null);
+        Book book = bookRepository.save(bookMapper.bookWithInventoryRequestDtoToBook(bookWithInventoryRequestDto));
+        return bookMapper.bookToBookWithInventoryResponseDto(book);
+    }
+
+    @Transactional
+    @CachePut(value = "book", key = "#result.id")
+    @Caching(evict = {
+            @CacheEvict(value = "pagedBooks", allEntries = true),
+            @CacheEvict(value = "searchedBooks", allEntries = true)
+    })
+    @Override
+    public BookWithInventoryResponseDto updateBook(Long id, BookWithInventoryRequestDto updatedBookWithInventoryRequestDto) {
+        BookWithInventoryResponseDto existingBookDto = getBookWithInventory(id);
+        checkData(updatedBookWithInventoryRequestDto, existingBookDto);
         if (Objects.nonNull(existingBookDto)) {
-            updatedBookRequestDto.setId(existingBookDto.getId());
-            updatedBookRequestDto.setVersion(existingBookDto.getVersion());
-            return saveBook(updatedBookRequestDto);
+            updatedBookWithInventoryRequestDto.setId(existingBookDto.getId());
+            updatedBookWithInventoryRequestDto.setVersion(existingBookDto.getVersion());
+            updatedBookWithInventoryRequestDto.getInventory().setId(existingBookDto.getInventory().getId());
+            updatedBookWithInventoryRequestDto.getInventory().setVersion(existingBookDto.getInventory().getVersion());
+            return saveBook(updatedBookWithInventoryRequestDto);
         }
 
         return null;
@@ -87,7 +94,6 @@ public class BookServiceImpl implements BookService {
     @Transactional
     @Caching(evict = {
             @CacheEvict(value = "book", key = "#id"),
-            @CacheEvict(value = "allBooks", allEntries = true),
             @CacheEvict(value = "pagedBooks", allEntries = true),
             @CacheEvict(value = "searchedBooks", allEntries = true)
     })
@@ -134,8 +140,20 @@ public class BookServiceImpl implements BookService {
         return pagedModel;
     }
 
-    private void checkData(BookRequestDto bookRequestDto) {
-        if (bookRepository.existsByIsbn(bookRequestDto.getIsbn())) {
+    private void checkData(
+            BookWithInventoryRequestDto bookWithInventoryRequestDto,
+            BookWithInventoryResponseDto existingBookWithInventoryResponseDto) {
+
+        boolean isIsbnUsedInExisting = existingBookWithInventoryResponseDto != null
+                && bookWithInventoryRequestDto.getIsbn().equals(existingBookWithInventoryResponseDto.getIsbn());
+
+
+
+
+
+
+
+        if (isIsbnUsedInExisting || bookRepository.existsByIsbn(bookWithInventoryRequestDto.getIsbn())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Isbn already in use.");
         }
     }

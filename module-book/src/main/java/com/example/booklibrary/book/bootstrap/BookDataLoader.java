@@ -1,5 +1,7 @@
 package com.example.booklibrary.book.bootstrap;
 
+import com.example.booklibrary.book.model.Book;
+import com.example.booklibrary.book.model.Inventory;
 import com.example.booklibrary.book.repository.BookRepository;
 import com.example.booklibrary.book.service.BookFetchService;
 import jakarta.transaction.Transactional;
@@ -10,6 +12,8 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 @ConditionalOnProperty(name = "book.data.loader.enabled", havingValue = "true")
@@ -25,7 +29,17 @@ public class BookDataLoader implements ApplicationRunner {
     public void run(ApplicationArguments args) {
         try {
             if (bookRepository.count() == 0) {
-                bookRepository.saveAll(bookFetchService.fetchBooks());
+                List<Book> books = bookFetchService.fetchBooks();
+
+                books.forEach(book -> {
+                    Inventory inventory = new Inventory();
+                    inventory.setCount(10);
+                    book.setInventory(inventory);
+                    inventory.setBook(book);
+                });
+
+                bookRepository.saveAll(books);
+
                 log.info("Data loaded from external service");
             } else {
                 log.warn("Data already exists, therefore not loaded from external service");
