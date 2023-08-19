@@ -27,9 +27,6 @@ public class BookAdminController {
     @GetMapping("/{id}")
     public ResponseEntity<BookWithInventoryResponseDto> getBookById(@PathVariable Long id) {
         BookWithInventoryResponseDto bookWithInventoryResponseDto = bookService.getBookWithInventory(id);
-        if (bookWithInventoryResponseDto == null) {
-            return ResponseEntity.notFound().build();
-        }
         return ResponseEntity.ok(bookWithInventoryResponseDto);
     }
 

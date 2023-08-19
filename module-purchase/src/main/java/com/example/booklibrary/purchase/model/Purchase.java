@@ -1,9 +1,11 @@
-package com.example.booklibrary.book.model;
+package com.example.booklibrary.purchase.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -11,8 +13,8 @@ import lombok.*;
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
 @Entity
-@Table(name = "inventory")
-public class Inventory {
+@Table(name = "purchase")
+public class Purchase {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,12 +24,25 @@ public class Inventory {
     @Column(name = "version", nullable = false)
     private Integer version;
 
-    @OneToOne(mappedBy = "inventory")
-    private Book book;
+    @NotNull
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
     @NotNull
-    @Min(0)
+    @Column(name = "book_id", nullable = false)
+    private Long bookId;
+
+    @NotNull
+    @Min(1)
     @Column(name = "count", nullable = false)
     private Integer count;
+
+    @Column(nullable = false)
+    private LocalDate purchaseDate;
+
+    @PrePersist
+    public void prePersist() {
+        this.purchaseDate = LocalDate.now();
+    }
 }
 

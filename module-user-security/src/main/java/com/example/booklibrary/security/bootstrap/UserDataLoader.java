@@ -1,9 +1,12 @@
 package com.example.booklibrary.security.bootstrap;
 
 import com.example.booklibrary.security.constant.Role;
+import com.example.booklibrary.security.dto.UserRequestDto;
+import com.example.booklibrary.security.mapper.UserMapper;
 import com.example.booklibrary.security.model.User;
 import com.example.booklibrary.security.repository.UserRepository;
 import com.example.booklibrary.security.service.UserFetchService;
+import com.example.booklibrary.security.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +31,8 @@ public class UserDataLoader implements ApplicationRunner {
 
     private final UserRepository userRepository;
     private final UserFetchService userFetchService;
-    private final PasswordEncoder passwordEncoder;
+    private final UserService userService;
+    private final UserMapper userMapper;
 
     @Value("${user.data.loader.superadmin.email}")
     private String superAdminEmail;
@@ -47,12 +51,13 @@ public class UserDataLoader implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         try {
             if (userRepository.count() == 0) {
-                List<User> users = userFetchService.fetchUsers();
+                List<UserRequestDto> users = userFetchService.fetchUsers();
 
                 initSimpleUsers(users);
                 initAdminUsers(users);
 
-                userRepository.saveAll(users);
+                users.forEach(userService::saveUser);
+
                 log.info("Data loaded from csv file");
             } else {
                 log.warn("Data already exists, therefore not loaded from csv file");
@@ -65,17 +70,17 @@ public class UserDataLoader implements ApplicationRunner {
         }
     }
 
-    private void initSimpleUsers(List<User> users) {
+    private void initSimpleUsers(List<UserRequestDto> users) {
         users.forEach(user -> user.setRole(USER));
     }
 
-    private void initAdminUsers(List<User> users) {
+    private void initAdminUsers(List<UserRequestDto> users) {
         users.add(createUser("dummySupAdm", superAdminEmail, superAdminPassword, SUPER_ADMIN));
         users.add(createUser("dummyAdm", adminEmail, adminPassword, ADMIN));
     }
 
-    private User createUser(String dummyData, String mail, String password, Role role) {
-        User user = new User();
+    private UserRequestDto createUser(String dummyData, String mail, String password, Role role) {
+        UserRequestDto user = new UserRequestDto();
         user.setEmail(mail);
         user.setPassword(password);
         user.setRole(role);

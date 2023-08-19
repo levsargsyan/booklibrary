@@ -1,0 +1,6 @@
+dependencies {
+    implementation "org.springframework.boot:spring-boot-starter-security"
+
+    implementation project(':module-book')
+    implementation project(':module-user-security')
+}

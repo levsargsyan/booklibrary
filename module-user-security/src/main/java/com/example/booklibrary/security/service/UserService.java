@@ -11,6 +11,8 @@ public interface UserService {
 
     UserResponseDto getUser(Long id);
 
+    UserResponseDto getUserByEmail(String userEmail);
+
     UserResponseDto saveUser(UserRequestDto userRequestDto);
 
     UserResponseDto updateUser(Long id, UserRequestDto updatedUserRequestDto);

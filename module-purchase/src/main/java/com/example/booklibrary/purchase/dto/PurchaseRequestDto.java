@@ -1,18 +1,14 @@
-package com.example.booklibrary.book.dto;
+package com.example.booklibrary.purchase.dto;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import lombok.Data;
 
-import java.io.Serial;
-import java.io.Serializable;
+import java.time.LocalDate;
 
 @Data
-public class InventoryRequestDto implements Serializable {
-
-    @Serial
-    private static final long serialVersionUID = 3820620042576725354L;
+public class PurchaseRequestDto {
 
     @Null
     private Long id;
@@ -20,7 +16,16 @@ public class InventoryRequestDto implements Serializable {
     @Null
     private Integer version;
 
+    @Null
+    private Long userId;
+
     @NotNull
-    @Min(0)
+    private Long bookId;
+
+    @NotNull
+    @Min(1)
     private Integer count;
+
+    @Null
+    private LocalDate purchaseDate;
 }

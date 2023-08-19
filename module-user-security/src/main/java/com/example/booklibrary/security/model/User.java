@@ -1,7 +1,6 @@
 package com.example.booklibrary.security.model;
 
 import com.example.booklibrary.security.constant.Role;
-import com.example.booklibrary.security.listener.UserEntityListener;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -18,7 +17,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @EqualsAndHashCode(of = "id")
 @Entity
-@EntityListeners(UserEntityListener.class)
 @Table(name = "users")
 public class User {
 
@@ -61,13 +59,13 @@ public class User {
     String country;
 
     @NotBlank
-    @Size(max = 255)
-    @Column(name = "password", nullable = false, length = 255)
+    @Size(max = 1000)
+    @Column(name = "password", nullable = false, length = 1000)
     String password;
 
     @NotBlank
-    @Size(max = 255)
-    @Column(name = "pan", nullable = false, length = 255)
+    @Size(max = 1000)
+    @Column(name = "pan", nullable = false, length = 1000)
     String pan;
 
     @NotNull

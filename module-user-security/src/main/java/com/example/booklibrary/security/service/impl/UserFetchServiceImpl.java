@@ -1,6 +1,7 @@
 package com.example.booklibrary.security.service.impl;
 
 import com.example.booklibrary.security.dto.UserCsvDto;
+import com.example.booklibrary.security.dto.UserRequestDto;
 import com.example.booklibrary.security.mapper.UserMapper;
 import com.example.booklibrary.security.model.User;
 import com.example.booklibrary.security.service.UserFetchService;
@@ -30,7 +31,7 @@ public class UserFetchServiceImpl implements UserFetchService {
 
 
     @Override
-    public List<User> fetchUsers() throws IOException {
+    public List<UserRequestDto> fetchUsers() throws IOException {
 
         List<UserCsvDto> userCsvDtoList;
         Resource resource = new ClassPathResource("user-data.csv");
@@ -48,7 +49,7 @@ public class UserFetchServiceImpl implements UserFetchService {
         }
 
         return userCsvDtoList.stream()
-                .map(userMapper::userCsvDtotoUser)
+                .map(userMapper::userCsvDtoToUser)
                 .collect(Collectors.toList());
     }
 }

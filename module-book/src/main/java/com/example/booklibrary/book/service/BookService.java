@@ -38,4 +38,6 @@ public interface BookService {
             String path);
 
     void checkData(BookWithInventoryRequestDto requestDto, BookWithInventoryResponseDto existingDto);
+
+    void decrementBookCount(Long inventoryId, Integer count);
 }

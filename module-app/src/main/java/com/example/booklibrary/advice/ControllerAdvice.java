@@ -1,5 +1,6 @@
 package com.example.booklibrary.advice;
 
+import jakarta.persistence.OptimisticLockException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
@@ -124,6 +125,17 @@ public class ControllerAdvice {
                 HttpStatus.valueOf(ex.getStatusCode().value()),
                 "Error",
                 ex.getReason());
+    }
+
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(OptimisticLockException.class)
+    public Map<String, Object> handleOptimisticLockingException(OptimisticLockException ex) {
+        log.error(EXCEPTION_MSG, ex);
+
+        return buildErrorResponse(
+                HttpStatus.CONFLICT,
+                "Concurrency Error",
+                "The resource was updated by another user. Please try again.");
     }
 
 

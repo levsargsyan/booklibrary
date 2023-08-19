@@ -7,12 +7,13 @@ import com.example.booklibrary.book.dto.InventoryProjectedResponseDto;
 import com.example.booklibrary.book.dto.search.BookSearchCommand;
 import com.example.booklibrary.book.mapper.BookMapper;
 import com.example.booklibrary.book.model.Book;
+import com.example.booklibrary.book.model.Inventory;
 import com.example.booklibrary.book.repository.BookRepository;
 import com.example.booklibrary.book.repository.InventoryRepository;
 import com.example.booklibrary.book.service.BookService;
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
@@ -29,7 +30,8 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
-import java.util.Objects;
+
+import static org.springframework.http.HttpStatus.*;
 
 @Service
 @RequiredArgsConstructor
@@ -43,15 +45,17 @@ public class BookServiceImpl implements BookService {
     @Cacheable(value = "book", key = "#id")
     @Override
     public BookResponseDto getBook(Long id) {
-        Book book = bookRepository.findById(id).orElse(null);
-        return bookMapper.bookToBookResponseDto(book);
+        return bookRepository.findById(id)
+                .map(bookMapper::bookToBookResponseDto)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Book not found"));
     }
 
     @Transactional(readOnly = true)
     @Override
     public BookWithInventoryResponseDto getBookWithInventory(Long id) {
-        Book book = bookRepository.findById(id).orElse(null);
-        return bookMapper.bookToBookWithInventoryResponseDto(book);
+        return bookRepository.findById(id)
+                .map(bookMapper::bookToBookWithInventoryResponseDto)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Book with inventory not found"));
     }
 
     @Transactional(readOnly = true)
@@ -61,7 +65,6 @@ public class BookServiceImpl implements BookService {
     }
 
     @Transactional
-    @CachePut(value = "book", key = "#result.id")
     @Caching(evict = {
             @CacheEvict(value = "pagedBooks", allEntries = true),
             @CacheEvict(value = "searchedBooks", allEntries = true)
@@ -73,8 +76,8 @@ public class BookServiceImpl implements BookService {
     }
 
     @Transactional
-    @CachePut(value = "book", key = "#result.id")
     @Caching(evict = {
+            @CacheEvict(value = "book", key = "#id"),
             @CacheEvict(value = "pagedBooks", allEntries = true),
             @CacheEvict(value = "searchedBooks", allEntries = true)
     })
@@ -82,15 +85,11 @@ public class BookServiceImpl implements BookService {
     public BookWithInventoryResponseDto updateBook(Long id, BookWithInventoryRequestDto updatedBookWithInventoryRequestDto) {
         BookWithInventoryResponseDto existingBookDto = getBookWithInventory(id);
         checkData(updatedBookWithInventoryRequestDto, existingBookDto);
-        if (Objects.nonNull(existingBookDto)) {
-            updatedBookWithInventoryRequestDto.setId(existingBookDto.getId());
-            updatedBookWithInventoryRequestDto.setVersion(existingBookDto.getVersion());
-            updatedBookWithInventoryRequestDto.getInventory().setId(existingBookDto.getInventory().getId());
-            updatedBookWithInventoryRequestDto.getInventory().setVersion(existingBookDto.getInventory().getVersion());
-            return saveBook(updatedBookWithInventoryRequestDto);
-        }
-
-        return null;
+        updatedBookWithInventoryRequestDto.setId(existingBookDto.getId());
+        updatedBookWithInventoryRequestDto.setVersion(existingBookDto.getVersion());
+        updatedBookWithInventoryRequestDto.getInventory().setId(existingBookDto.getInventory().getId());
+        updatedBookWithInventoryRequestDto.getInventory().setVersion(existingBookDto.getInventory().getVersion());
+        return saveBook(updatedBookWithInventoryRequestDto);
     }
 
     @Transactional
@@ -161,6 +160,29 @@ public class BookServiceImpl implements BookService {
             if (isIsbnDifferentFromExisting && bookRepository.existsByIsbn(requestDto.getIsbn())) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Isbn already in use.");
             }
+        }
+    }
+
+    @Transactional
+    @Override
+    public void decrementBookCount(Long inventoryId, Integer count) {
+        try {
+            Inventory inventory = inventoryRepository.findById(inventoryId)
+                    .orElseThrow(() -> new ResponseStatusException(
+                            NOT_FOUND,
+                            "Inventory not found for ID: " + inventoryId));
+
+            if (inventory.getCount() - count < 0) {
+                throw new ResponseStatusException(
+                        BAD_REQUEST,
+                        String.format("You requested %d books, but only %d are in stock.", count, inventory.getCount()));
+            }
+
+            inventory.setCount(inventory.getCount() - count);
+        } catch (OptimisticLockException e) {
+            throw new ResponseStatusException(
+                    CONFLICT,
+                    "The book inventory was updated by another user. Please try again.");
         }
     }
 

@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("/admin/api/v1/users")
 @RequiredArgsConstructor
-public class UserController {
+public class UserAdminController {
 
     private final UserService userService;
 
@@ -27,7 +27,7 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDto> getUserById(@PathVariable Long id) {
         UserResponseDto userResponseDto = userService.getUser(id);
-        return userResponseDto == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(userResponseDto);
+        return ResponseEntity.ok(userResponseDto);
     }
 
     @PostMapping
@@ -43,7 +43,7 @@ public class UserController {
         Role roleOfUserToActUpon = userService.getRoleOfUser(id);
         userService.checkAuthorization(roleOfUserToActUpon, updatedUserRequestDto.getRole());
         UserResponseDto userResponseDto = userService.updateUser(id, updatedUserRequestDto);
-        return userResponseDto == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(userResponseDto);
+        return ResponseEntity.ok(userResponseDto);
     }
 
     @DeleteMapping("/{id}")

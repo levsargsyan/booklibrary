@@ -4,6 +4,7 @@ import com.example.booklibrary.security.entrypoint.RestAuthenticationEntryPoint;
 import com.example.booklibrary.security.handler.CustomAccessDeniedHandler;
 import com.example.booklibrary.security.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,6 +28,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static com.example.booklibrary.security.constant.Role.*;
@@ -41,6 +43,18 @@ public class SecurityConfig {
     private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @Value("${cors.allowedOrigins}")
+    private String[] allowedOrigins;
+
+    @Value("${cors.allowedMethods}")
+    private String[] allowedMethods;
+
+    @Value("${cors.allowedHeaders}")
+    private String[] allowedHeaders;
+
+    @Value("${cors.exposedHeaders}")
+    private String[] exposedHeaders;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -60,13 +74,10 @@ public class SecurityConfig {
                                         antMatcher("/actuator/**")
                                 ).permitAll()
                                 .requestMatchers(
-                                        antMatcher("/api/v1/books/**")
+                                        antMatcher("/api/**")
                                 ).hasAnyRole(SUPER_ADMIN.name(), ADMIN.name(), USER.name())
                                 .requestMatchers(
-                                        antMatcher("/admin/api/v1/books/**")
-                                ).hasAnyRole(SUPER_ADMIN.name(), ADMIN.name())
-                                .requestMatchers(
-                                        antMatcher("/api/v1/users/**")
+                                        antMatcher("/admin/api/**")
                                 ).hasAnyRole(SUPER_ADMIN.name(), ADMIN.name())
                                 .anyRequest().authenticated()
                 )
@@ -110,10 +121,11 @@ public class SecurityConfig {
 
     private CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*"));
-        configuration.setAllowedMethods(List.of("*"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setExposedHeaders(List.of("*"));
+
+        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins));
+        configuration.setAllowedMethods(Arrays.asList(allowedMethods));
+        configuration.setAllowedHeaders(Arrays.asList(allowedHeaders));
+        configuration.setExposedHeaders(Arrays.asList(exposedHeaders));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
