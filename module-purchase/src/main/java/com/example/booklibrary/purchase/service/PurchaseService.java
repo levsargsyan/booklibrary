@@ -11,6 +11,8 @@ public interface PurchaseService {
 
     List<PurchaseResponseDto> getAllPurchases();
 
+    Long getAllPurchasesCount();
+
     List<PurchaseResponseDto> getPurchasesByUserId(Long userId);
 
     List<PurchaseResponseDto> getPurchasesByAuthenticatedUser();

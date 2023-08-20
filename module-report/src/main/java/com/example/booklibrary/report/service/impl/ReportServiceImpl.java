@@ -39,7 +39,7 @@ public class ReportServiceImpl implements ReportService {
                 Map<String, Object> params = new HashMap<>();
                 params.put("BOOK_COUNT", bookService.getAllBooksCount());
                 params.put("BOOK_INVENTORY_COUNT", inventoryService.getTotalInventoryBooksCount());
-                params.put("PURCHASE_COUNT", purchaseService.getAllPurchases());
+                params.put("PURCHASE_COUNT", purchaseService.getAllPurchasesCount());
                 params.put("PURCHASED_BOOK_COUNT", purchaseService.getTotalPurchasedBooksCount());
                 params.put("USER_COUNT", userService.getAllUsersCount());
 
@@ -48,7 +48,6 @@ public class ReportServiceImpl implements ReportService {
 
                 return new ByteArrayResource(report);
             }
-
         } catch (Exception ex) {
             log.error("Error generating report", ex);
             throw new ResponseStatusException(BAD_REQUEST, "Failed to generate the report.", ex);

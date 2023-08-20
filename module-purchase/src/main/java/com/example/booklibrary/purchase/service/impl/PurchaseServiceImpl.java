@@ -53,6 +53,12 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Transactional(readOnly = true)
     @Override
+    public Long getAllPurchasesCount() {
+        return purchaseRepository.count();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
     public List<PurchaseResponseDto> getPurchasesByUserId(Long userId) {
         List<Purchase> purchases = purchaseRepository.findByUserId(userId);
         return purchaseMapper.purchasesToPurchaseResponseDtos(purchases);
