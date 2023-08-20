@@ -50,7 +50,7 @@ public class User {
 
     @NotBlank
     @Size(max = 255)
-    @Column(name = "postalZip", nullable = false, length = 255)
+    @Column(name = "postal_zip", nullable = false, length = 255)
     String postalZip;
 
     @NotBlank
@@ -69,7 +69,7 @@ public class User {
     String pan;
 
     @NotNull
-    @Column(name = "expDate", nullable = false)
+    @Column(name = "exp_date", nullable = false)
     LocalDate expDate;
 
     @NotNull
