@@ -43,6 +43,12 @@ public class UserServiceImpl implements UserService {
 
     @Transactional(readOnly = true)
     @Override
+    public Long getAllUsersCount() {
+        return userRepository.count();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
     public UserResponseDto getUser(Long id) {
         return userRepository.findById(id)
                 .map(userMapper::userToUserResponseDto)

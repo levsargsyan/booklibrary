@@ -12,4 +12,5 @@ dependencies {
     implementation project(':module-user-security')
     implementation project(':module-purchase')
     implementation project(':module-recommendation')
+    implementation project(':module-report')
 }

@@ -66,6 +66,12 @@ public class BookServiceImpl implements BookService {
         return bookMapper.booksToBookWithInventoryResponseDtos(bookRepository.findAll());
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public Long getAllBooksCount() {
+        return bookRepository.count();
+    }
+
     @Transactional
     @Caching(evict = {
             @CacheEvict(value = "pagedBooks", allEntries = true),

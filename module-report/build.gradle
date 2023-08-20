@@ -1,0 +1,7 @@
+dependencies {
+    implementation "net.sf.jasperreports:jasperreports:${jasperReportsVersion}"
+
+    implementation project(':module-book')
+    implementation project(':module-user-security')
+    implementation project(':module-purchase')
+}

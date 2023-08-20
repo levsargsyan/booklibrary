@@ -23,6 +23,8 @@ public interface BookService {
 
     BookWithInventoryResponseDto getBookWithInventory(Long id);
 
+    Long getAllBooksCount();
+
     BookWithInventoryResponseDto saveBook(BookWithInventoryRequestDto bookWithInventoryRequestDto);
 
     BookWithInventoryResponseDto updateBook(Long id, BookWithInventoryRequestDto bookWithInventoryRequestDto);

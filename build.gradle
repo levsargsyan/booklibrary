@@ -15,6 +15,7 @@ ext {
     opencsvVersion = '5.8'
     jasyptVersion = '1.9.3'
     jjwtVersion = '0.11.5'
+    jasperReportsVersion = '6.20.5'
 }
 
 subprojects {
@@ -36,6 +37,9 @@ subprojects {
     }
 
     repositories {
+        maven {
+            url "https://jaspersoft.jfrog.io/jaspersoft/third-party-ce-artifacts/"
+        }
         mavenCentral()
     }
 

@@ -9,6 +9,8 @@ import java.util.List;
 public interface UserService {
     List<UserResponseDto> getAllUsers();
 
+    Long getAllUsersCount();
+
     UserResponseDto getUser(Long id);
 
     UserResponseDto getUserByEmail(String userEmail);

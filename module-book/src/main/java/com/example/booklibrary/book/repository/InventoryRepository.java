@@ -13,4 +13,7 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
 
     @Query("SELECT new com.example.booklibrary.book.dto.InventoryProjectedResponseDto(i.id, i.version, i.count, b.id, b.isbn) FROM Inventory i JOIN i.book b")
     List<InventoryProjectedResponseDto> findAllProjectedBy();
+
+    @Query("SELECT SUM(i.count) FROM Inventory i")
+    Long findTotalInventoryBooksCount();
 }
