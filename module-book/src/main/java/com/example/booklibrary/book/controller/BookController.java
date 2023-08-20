@@ -27,13 +27,13 @@ public class BookController {
     @GetMapping
     public PagedModel<EntityModel<BookResponseDto>> getAllBooks(Pageable pageable) {
         Page<BookResponseDto> booksPaginatedDto = bookService.getBooksPaginated(pageable);
-        return bookService.assemblePagedModel(pageable, booksPaginatedDto, "/api/v1/books/paged");
+        return bookService.assemblePagedModel(pageable, booksPaginatedDto, "/api/v1/books");
     }
 
     @PostMapping("/search")
     public PagedModel<EntityModel<BookResponseDto>> searchBooks(@RequestBody BookSearchCommand searchCommand, Pageable pageable) {
         Page<BookResponseDto> booksPaginatedDto = bookService.searchBooks(searchCommand, pageable);
-        return bookService.assemblePagedModel(pageable, booksPaginatedDto, "/api/v1/books/paged/search");
+        return bookService.assemblePagedModel(pageable, booksPaginatedDto, "/api/v1/books/search");
     }
 }
 

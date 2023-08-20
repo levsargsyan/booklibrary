@@ -74,11 +74,18 @@ public class SecurityConfig {
                                         antMatcher("/actuator/**")
                                 ).permitAll()
                                 .requestMatchers(
-                                        antMatcher("/api/**")
+                                        antMatcher("/api/**/books/**"),
+                                        antMatcher("/api/**/purchases/**"),
+                                        antMatcher("/api/**/recommendations/**")
                                 ).hasAnyRole(SUPER_ADMIN.name(), ADMIN.name(), USER.name())
                                 .requestMatchers(
-                                        antMatcher("/admin/api/**")
+                                        antMatcher("/manage/api/**/books/**"),
+                                        antMatcher("/manage/api/**/purchases/**"),
+                                        antMatcher("/api/**/users/**")
                                 ).hasAnyRole(SUPER_ADMIN.name(), ADMIN.name())
+                                .requestMatchers(
+                                        antMatcher("/api/**/reports/**")
+                                ).hasAnyRole(SUPER_ADMIN.name())
                                 .anyRequest().authenticated()
                 )
                 .csrf(AbstractHttpConfigurer::disable)
