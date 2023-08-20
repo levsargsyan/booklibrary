@@ -11,6 +11,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 
 import java.util.List;
+import java.util.Set;
 
 public interface BookService {
 
@@ -32,6 +33,16 @@ public interface BookService {
 
     Page<BookResponseDto> getBooksPaginated(Pageable pageable);
 
+    List<BookWithInventoryResponseDto> getBooksByAuthorAndGenre(Set<String> authors, Set<String> genres);
+
+    List<BookWithInventoryResponseDto> getAvailableBooksByAuthors(Set<String> authors, Integer count);
+
+    List<BookWithInventoryResponseDto> getAvailableBooksByGenres(Set<String> genres, Integer count);
+
+    String getBookAuthor(Long bookId);
+
+    String getBookGenre(Long bookId);
+
     PagedModel<EntityModel<BookResponseDto>> assemblePagedModel(
             Pageable pageable,
             Page<BookResponseDto> booksPaginatedDto,
@@ -40,4 +51,6 @@ public interface BookService {
     void checkData(BookWithInventoryRequestDto requestDto, BookWithInventoryResponseDto existingDto);
 
     void decrementBookCount(Long inventoryId, Integer count);
+
+    List<BookWithInventoryResponseDto> getAvailableLastAddedBooks(Integer i);
 }

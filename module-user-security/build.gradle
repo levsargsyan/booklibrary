@@ -1,5 +1,9 @@
+plugins {
+    id 'java-library'
+}
+
 dependencies {
-    implementation "org.springframework.boot:spring-boot-starter-security"
+    api "org.springframework.boot:spring-boot-starter-security"
     implementation "com.opencsv:opencsv:${opencsvVersion}"
     implementation "org.jasypt:jasypt:${jasyptVersion}"
     implementation "io.jsonwebtoken:jjwt-api:${jjwtVersion}"

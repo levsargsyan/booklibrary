@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -62,6 +63,8 @@ public class PurchaseServiceImpl implements PurchaseService {
     public List<PurchaseResponseDto> getPurchasesByAuthenticatedUser() {
         Long authenticatedUserId = getCurrentUserId();
         List<Purchase> purchases = purchaseRepository.findByUserId(authenticatedUserId);
+        purchases.sort(Comparator.comparing(Purchase::getPurchaseDate)
+                .thenComparing(Purchase::getPurchaseDate).reversed());
         return purchaseMapper.purchasesToPurchaseResponseDtos(purchases);
     }
 
@@ -96,7 +99,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         } else {
             throw new ResponseStatusException(
                     UNAUTHORIZED,
-                    "Authentication required to proceed with purchase");
+                    "Authentication required");
         }
     }
 }

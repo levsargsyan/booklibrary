@@ -29,7 +29,9 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -116,6 +118,62 @@ public class BookServiceImpl implements BookService {
     @Override
     public Page<BookResponseDto> getBooksPaginated(Pageable pageable) {
         return bookRepository.findAll(pageable).map(bookMapper::bookToBookResponseDto);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<BookWithInventoryResponseDto> getAvailableLastAddedBooks(Integer count) {
+        PageRequest pageRequest = PageRequest.of(0, count);
+        List<Book> books = bookRepository.findByOrderByIdDesc(pageRequest);
+        return books.stream()
+                .map(bookMapper::bookToBookWithInventoryResponseDto)
+                .filter(book -> book.getInventory().getCount() >= 1)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<BookWithInventoryResponseDto> getAvailableBooksByAuthors(Set<String> authors, Integer count) {
+        PageRequest pageRequest = PageRequest.of(0, count);
+        List<Book> books = bookRepository.findByAuthorInOrderByPublishedDesc(authors, pageRequest);
+        return books.stream()
+                .map(bookMapper::bookToBookWithInventoryResponseDto)
+                .filter(book -> book.getInventory().getCount() >= 1)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<BookWithInventoryResponseDto> getAvailableBooksByGenres(Set<String> genres, Integer count) {
+        PageRequest pageRequest = PageRequest.of(0, count);
+        List<Book> books = bookRepository.findByGenreInOrderByPublishedDesc(genres, pageRequest);
+        return books.stream()
+                .map(bookMapper::bookToBookWithInventoryResponseDto)
+                .filter(book -> book.getInventory().getCount() >= 1)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public String getBookAuthor(Long bookId) {
+        return bookRepository.findById(bookId)
+                .map(Book::getAuthor)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Book not found with ID: " + bookId));
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public String getBookGenre(Long bookId) {
+        return bookRepository.findById(bookId)
+                .map(Book::getGenre)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Book not found with ID: " + bookId));
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<BookWithInventoryResponseDto> getBooksByAuthorAndGenre(Set<String> authors, Set<String> genres) {
+        List<Book> books = bookRepository.findByAuthorInAndGenreIn(new ArrayList<>(authors), new ArrayList<>(genres));
+        return bookMapper.booksToBookWithInventoryResponseDtos(books);
     }
 
     public List<InventoryProjectedResponseDto> getAllInventories() {

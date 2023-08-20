@@ -1,4 +1,5 @@
 dependencies {
     implementation project(':module-book')
+    implementation project(':module-purchase')
     implementation project(':module-user-security')
 }
