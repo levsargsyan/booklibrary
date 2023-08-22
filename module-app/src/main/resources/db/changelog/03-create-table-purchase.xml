@@ -23,7 +23,7 @@
             <column name="count" type="INTEGER">
                 <constraints nullable="false"/>
             </column>
-            <column name="purchaseDate" type="DATE">
+            <column name="purchase_date" type="DATE">
                 <constraints nullable="false"/>
             </column>
         </createTable>

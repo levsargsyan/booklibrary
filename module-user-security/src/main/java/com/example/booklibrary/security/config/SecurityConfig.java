@@ -66,6 +66,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizeHttpRequests ->
                         authorizeHttpRequests
                                 .requestMatchers(
+                                        antMatcher("/"),
                                         antMatcher("/index.html"),
                                         antMatcher("/login.html"),
                                         antMatcher("/auth/login"),
