@@ -13,7 +13,6 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
@@ -71,7 +70,9 @@ public class SecurityConfig {
                                         antMatcher("/login.html"),
                                         antMatcher("/auth/login"),
                                         antMatcher("/h2-console/**"),
-                                        antMatcher("/actuator/**")
+                                        antMatcher("/actuator/**"),
+                                        antMatcher("/api-docs/**"),
+                                        antMatcher("/swagger-ui/**")
                                 ).permitAll()
                                 .requestMatchers(
                                         antMatcher("/api/**/books/**"),
@@ -104,13 +105,6 @@ public class SecurityConfig {
 
 
         return http.build();
-    }
-
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return web -> web.ignoring().requestMatchers(
-                antMatcher("/api-docs/**"),
-                antMatcher("/swagger-ui/**"));
     }
 
     @Bean

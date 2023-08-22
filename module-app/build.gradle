@@ -1,3 +1,7 @@
+plugins {
+    id 'com.google.cloud.tools.jib' version '3.3.2'
+}
+
 bootJar {
     enabled = true
     mainClass = 'com.example.booklibrary.BookLibraryApplication'
@@ -5,6 +9,36 @@ bootJar {
     archiveBaseName.set(rootProject.getName())
     archiveVersion.set(rootProject.getVersion().toString())
     archiveFileName.set("${archiveBaseName.get()}-${archiveVersion.get()}.jar")
+}
+
+jib {
+    from {
+        image = "amazoncorretto:20-alpine-jdk"
+    }
+    to {
+        image = project.hasProperty('imageTag')
+                ? "${rootProject.getName()}:${project.property('imageTag')}"
+                : "${rootProject.getName()}:${rootProject.getVersion()}"
+    }
+    container {
+        mainClass = "com.example.booklibrary.BookLibraryApplication"
+    }
+}
+
+if (project.hasProperty('env')) {
+    jib.to.image = project.property('env') == 'dev'
+            ? "${rootProject.getName()}:latest"
+            : "${rootProject.getName()}:${rootProject.getVersion().toString()}"
+}
+
+tasks.register('deployAndRun') {
+    dependsOn 'clean', 'build', 'jibDockerBuild'
+
+    doLast {
+        exec {
+            commandLine 'docker-compose', 'up'
+        }
+    }
 }
 
 dependencies {

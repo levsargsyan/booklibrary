@@ -182,6 +182,8 @@ public class BookServiceImpl implements BookService {
         return bookMapper.booksToBookWithInventoryResponseDtos(books);
     }
 
+    @Transactional(readOnly = true)
+    @Override
     public List<InventoryProjectedResponseDto> getAllInventories() {
         return inventoryRepository.findAllProjectedBy();
     }

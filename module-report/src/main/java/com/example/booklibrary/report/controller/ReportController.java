@@ -27,5 +27,4 @@ public class ReportController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=GeneralReport.pdf")
                 .body(report);
     }
-
 }

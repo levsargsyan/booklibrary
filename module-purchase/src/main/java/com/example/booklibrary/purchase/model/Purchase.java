@@ -37,7 +37,7 @@ public class Purchase {
     @Column(name = "count", nullable = false)
     private Integer count;
 
-    @Column(nullable = false)
+    @Column(name = "purchase_date", nullable = false)
     private LocalDate purchaseDate;
 
     @PrePersist
