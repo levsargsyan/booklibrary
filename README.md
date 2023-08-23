@@ -57,6 +57,6 @@ The application can be run in multiple ways, depending on the development or pro
       This command will build the Docker images for the application, MySQL, and Redis. It will then deploy and run these images using Docker Compose.
     - Be sure mysql datasource is uncomment and cache.type=redis with redis credentials
 
-Application uses port 8080 by default and can be accesses by http://ocalhost/8080
+Application uses port 8080 by default and can be accesses by http://localhost:8080
 It uses simple index page, login page and the link to swagger UI
 There are by default created 1 admin user and 1 superadmin user apart from other fake users, which credentials can be found and configured in application.properties(module-app)
