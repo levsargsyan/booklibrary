@@ -11,6 +11,36 @@ bootJar {
     archiveFileName.set("${archiveBaseName.get()}-${archiveVersion.get()}.jar")
 }
 
+//--------------------------------------------Integration Tests--------------------------------------
+
+sourceSets {
+    testIntegration {
+        compileClasspath += main.output + test.output
+        runtimeClasspath += main.output + test.output
+        java.srcDir file('src/testIntegration/java')
+        resources.srcDir file('src/testIntegration/resources')
+    }
+}
+
+tasks.register('testIntegration', Test) {
+    description = 'Runs integration tests.'
+    group = 'verification'
+    testClassesDirs = sourceSets.testIntegration.output.classesDirs
+    classpath = sourceSets.testIntegration.runtimeClasspath
+    mustRunAfter test
+
+    useJUnitPlatform()
+}
+
+configurations {
+    testIntegrationImplementation.extendsFrom(implementation, testImplementation)
+}
+
+check.dependsOn testIntegration
+
+
+//--------------------------------------------Jib Plugin--------------------------------------
+
 jib {
     from {
         image = "amazoncorretto:20-alpine-jdk"
@@ -41,6 +71,9 @@ tasks.register('deployAndRun') {
     }
 }
 
+
+//--------------------------------------------Dependencies--------------------------------------
+
 dependencies {
     implementation "org.liquibase:liquibase-core:${liquibaseVersion}"
 
@@ -49,4 +82,9 @@ dependencies {
     implementation project(':module-purchase')
     implementation project(':module-recommendation')
     implementation project(':module-report')
+    implementation project(':module-common')
+
+    testIntegrationImplementation "org.testcontainers:junit-jupiter"
+    testIntegrationImplementation "org.testcontainers:mysql"
+    testIntegrationImplementation "io.rest-assured:rest-assured:${restAssuredVersion}"
 }

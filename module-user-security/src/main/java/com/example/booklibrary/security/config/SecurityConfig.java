@@ -13,10 +13,7 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
-import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
-import org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer;
+import org.springframework.security.config.annotation.web.configurers.*;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -43,6 +40,9 @@ public class SecurityConfig {
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    @Value("${security.permitAll:false}")
+    private boolean permitAll;
+
     @Value("${cors.allowedOrigins}")
     private String[] allowedOrigins;
 
@@ -62,47 +62,51 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .authorizeHttpRequests(authorizeHttpRequests ->
-                        authorizeHttpRequests
-                                .requestMatchers(
-                                        antMatcher("/"),
-                                        antMatcher("/index.html"),
-                                        antMatcher("/login.html"),
-                                        antMatcher("/auth/login"),
-                                        antMatcher("/h2-console/**"),
-                                        antMatcher("/actuator/**"),
-                                        antMatcher("/api-docs/**"),
-                                        antMatcher("/swagger-ui/**")
-                                ).permitAll()
-                                .requestMatchers(
-                                        antMatcher("/api/**/books/**"),
-                                        antMatcher("/api/**/purchases/**"),
-                                        antMatcher("/api/**/recommendations/**")
-                                ).hasAnyRole(SUPER_ADMIN.name(), ADMIN.name(), USER.name())
-                                .requestMatchers(
-                                        antMatcher("/manage/api/**/books/**"),
-                                        antMatcher("/manage/api/**/purchases/**"),
-                                        antMatcher("/api/**/users/**")
-                                ).hasAnyRole(SUPER_ADMIN.name(), ADMIN.name())
-                                .requestMatchers(
-                                        antMatcher("/api/**/reports/**")
-                                ).hasAnyRole(SUPER_ADMIN.name())
-                                .anyRequest().authenticated()
-                )
-                .csrf(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .formLogin(AbstractHttpConfigurer::disable)
-                .cors(this::customizeCors)
-                .headers(SecurityConfig::customizeFrameOption)
-                .sessionManagement(SecurityConfig::customizeSessionPolicy)
-                .exceptionHandling(exceptionHandling ->
-                        exceptionHandling
-                                .authenticationEntryPoint(restAuthenticationEntryPoint)
-                                .accessDeniedHandler(customAccessDeniedHandler)
+        if (permitAll) {
+            http.authorizeHttpRequests(SecurityConfig::customizeAnyRequestPermitAll);
+        } else {
+            http
+                    .authorizeHttpRequests(authorizeHttpRequests ->
+                            authorizeHttpRequests
+                                    .requestMatchers(
+                                            antMatcher("/"),
+                                            antMatcher("/index.html"),
+                                            antMatcher("/login.html"),
+                                            antMatcher("/auth/login"),
+                                            antMatcher("/h2-console/**"),
+                                            antMatcher("/actuator/**"),
+                                            antMatcher("/api-docs/**"),
+                                            antMatcher("/swagger-ui/**")
+                                    ).permitAll()
+                                    .requestMatchers(
+                                            antMatcher("/api/**/books/**"),
+                                            antMatcher("/api/**/purchases/**"),
+                                            antMatcher("/api/**/recommendations/**")
+                                    ).hasAnyRole(SUPER_ADMIN.name(), ADMIN.name(), USER.name())
+                                    .requestMatchers(
+                                            antMatcher("/manage/api/**/books/**"),
+                                            antMatcher("/manage/api/**/purchases/**"),
+                                            antMatcher("/api/**/users/**")
+                                    ).hasAnyRole(SUPER_ADMIN.name(), ADMIN.name())
+                                    .requestMatchers(
+                                            antMatcher("/api/**/reports/**")
+                                    ).hasAnyRole(SUPER_ADMIN.name())
+                                    .anyRequest().authenticated()
+                    )
+                    .csrf(AbstractHttpConfigurer::disable)
+                    .httpBasic(AbstractHttpConfigurer::disable)
+                    .formLogin(AbstractHttpConfigurer::disable)
+                    .cors(this::customizeCors)
+                    .headers(SecurityConfig::customizeFrameOption)
+                    .sessionManagement(SecurityConfig::customizeSessionPolicy)
+                    .exceptionHandling(exceptionHandling ->
+                            exceptionHandling
+                                    .authenticationEntryPoint(restAuthenticationEntryPoint)
+                                    .accessDeniedHandler(customAccessDeniedHandler)
 
-                )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                    )
+                    .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        }
 
 
         return http.build();
@@ -145,6 +149,10 @@ public class SecurityConfig {
 
     private static void customizeFrameOption(HeadersConfigurer<HttpSecurity> httpSecurityHeadersConfigurer) {
         httpSecurityHeadersConfigurer.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable);
+    }
+
+    private static void customizeAnyRequestPermitAll(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry authorizationManagerRequestMatcherRegistry) {
+        authorizationManagerRequestMatcherRegistry.anyRequest().permitAll();
     }
 }
 

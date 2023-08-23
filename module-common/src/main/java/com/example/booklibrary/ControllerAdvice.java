@@ -1,4 +1,4 @@
-package com.example.booklibrary.advice;
+package com.example.booklibrary;
 
 import jakarta.persistence.OptimisticLockException;
 import lombok.extern.slf4j.Slf4j;
