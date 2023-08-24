@@ -24,7 +24,7 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'org.springframework.boot'
     apply plugin: 'io.spring.dependency-management'
-//    apply plugin: 'jacoco'
+    apply plugin: 'jacoco'
 
     java {
         sourceCompatibility = '20'
@@ -81,11 +81,12 @@ subprojects {
         useJUnitPlatform()
     }
 
-//    jacocoTestReport {
-//        reports {
-//            xml.required = true
-//            html.required = true
-//            csv.required = false
-//        }
-//    }
+    jacocoTestReport {
+        dependsOn test
+        reports {
+            xml.required = true
+            html.required = true
+            csv.required = false
+        }
+    }
 }

@@ -72,6 +72,26 @@ tasks.register('deployAndRun') {
 }
 
 
+//--------------------------------------------Jacoco Aggregated Report--------------------------------------
+
+def aggregatedProjects = [':module-book', ':module-user-security', ':module-purchase', ':module-recommendation', ':module-report', ':module-common']
+
+tasks.register('jacocoGeneralReport', JacocoReport) {
+
+    dependsOn = aggregatedProjects.collect { "$it:jacocoTestReport" }
+
+    sourceDirectories.setFrom(files(aggregatedProjects.collect { project(it).sourceSets.main.allSource.srcDirs }))
+    classDirectories.setFrom(files(aggregatedProjects.collect { project(it).sourceSets.main.output }))
+    executionData.from(aggregatedProjects.collect { project(it).jacocoTestReport.executionData })
+
+    reports {
+        xml.required = true
+        html.required = true
+        csv.required = false
+    }
+}
+
+
 //--------------------------------------------Dependencies--------------------------------------
 
 dependencies {
